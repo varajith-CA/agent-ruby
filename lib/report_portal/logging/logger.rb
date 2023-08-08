@@ -38,9 +38,12 @@ module ReportPortal
           ReportPortal.send_log(ReportPortal::LOG_LEVELS[:unknown], msg.to_s, ReportPortal.now)
           ret
         end
-        def <<
-          ret = orig_write_file
-          ReportPortal.send_file(ReportPortal::LOG_LEVELS[:unknown], path_or_src, label, time, mime_type)
+
+        def <<(path_or_src, label)
+          ret = orig_write_file(path_or_src, label)
+          ReportPortal.send_file(ReportPortal::LOG_LEVELS[:unknown], path_or_src, label, ReportPortal.now, mimime_type = 'image/png')
+          ret
+        end
       end
     end
   end
