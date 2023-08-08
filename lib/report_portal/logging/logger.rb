@@ -7,6 +7,8 @@ module ReportPortal
       Logger.class_eval do
         alias_method :orig_add, :add
         alias_method :orig_write, :<<
+        alias_method :orig_add_file, :add_file
+        alias_method :orig_write_file, :<<
         def add(severity, message = nil, progname = nil, &block)
           ret = orig_add(severity, message, progname, &block)
 
@@ -25,11 +27,20 @@ module ReportPortal
           ret
         end
 
+        def add_file(status, path_or_src, label = nil, time = ReportPortal.now, mime_type = 'image/png')
+          ret = orig_add_file(status, path_or_src, label, time, mime_type)
+          ReportPortal.send_file(status, path_or_src, label, time, mime_type)
+          ret
+        end
+
         def <<(msg)
           ret = orig_write(msg)
           ReportPortal.send_log(ReportPortal::LOG_LEVELS[:unknown], msg.to_s, ReportPortal.now)
           ret
         end
+        def <<
+          ret = orig_write_file
+          ReportPortal.send_file(ReportPortal::LOG_LEVELS[:unknown], path_or_src, label, time, mime_type)
       end
     end
   end
